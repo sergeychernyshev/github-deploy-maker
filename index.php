@@ -2,8 +2,6 @@
 $post = file_get_contents('php://input');
 
 if ($post) {
-	file_put_contents('/tmp/github_hook_' . getmypid() , $post); #debug
-
 	$json = json_decode($post, true);
 
 	if (file_exists(__DIR__ . '/config.inc.php')) {
