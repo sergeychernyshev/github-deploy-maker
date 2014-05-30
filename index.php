@@ -1,6 +1,4 @@
 <?php
-require_once(__DIR__ . '/socket.inc.php');
-
 $post = file_get_contents('php://input');
 
 if ($post) {
@@ -12,19 +10,17 @@ if ($post) {
 		require_once(__DIR__ . '/config.inc.php');
 	}
 
+	if (!isset($queue_path)) {
+		$queue_path = __DIR__ . '/.queue/';
+		mkdir($queue_path);
+	}
+
 	if (array_key_exists('head_commit', $json)) {
 		foreach ($targets as $repo => $target) {
 			foreach ($target as $ref => $path) {
-				error_log(var_export(array(
-					'$ref' => $ref,
-					'$repo' => $repo,
-					'$path' => $path,
-					'$json[ref]' => $json['ref'],
-					'$json[repository][url]' => $json['repository']['url']
-				), true));
 				if ($json['ref'] == $ref && $json['repository']['url'] == $repo) {
-					$socket = open_socket();
-					socket_write($sock, $path);
+					# file acts as instruction to trigger make
+					file_put_contents($queue_path . '/github_cmd_' . getmypid(), $path);
 				}
 			}
 		}
