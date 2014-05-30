@@ -8,7 +8,8 @@ if (!isset($queue_path)) {
 	mkdir($queue_path);
 }
 
-while(1) {
+$keep_going = true;
+while($keep_going) {
 	if ($files = glob($queue_path . '/github_cmd_*')) {
 		foreach ($files as $file) {
 			$requested_path = trim(file_get_contents($file));
@@ -23,5 +24,11 @@ while(1) {
 			unlink($file);
 		}
 	}
-	sleep(60);
+
+	if ($argv[1] == 'cron') {
+		$keep_going = false;
+	} else {
+		# daemon, waking up every 60 seconds
+		sleep(60);
+	}
 }
